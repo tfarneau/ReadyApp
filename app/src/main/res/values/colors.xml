@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="footer_background">#d96859</color>
+    <color name="header_background">#5fd976</color>
+    <color name="body_background">#56aaca</color>
+    <color name="color_primary">#45ae5d</color>
+    <color name="color_secondary">#808080</color>
+    <color name="background_listview">#ffffff</color>
+    <color name="background_user">#f2f2f4</color>
+</resources>

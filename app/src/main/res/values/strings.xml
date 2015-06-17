@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Ready</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="action_logout">Logout</string>
+    <string name="app_id">829600883789260</string>
+    <string name="toast_connection_cancel">Canceled !</string>
+    <string name="toast_connection_error">Unable to connect !</string>
+</resources>
