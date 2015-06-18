@@ -6,4 +6,9 @@
     <string name="app_id">829600883789260</string>
     <string name="toast_connection_cancel">Canceled !</string>
     <string name="toast_connection_error">Unable to connect !</string>
+    <string name="fetch_friends_error">Unable to fetch friends data</string>
+    <string name="fetch_profile_error">Unable to fetch profile data</string>
+    <string name="default_status">Write your status</string>
+    <string name="parse_application_id">R1FqempZyB2IfvMu43yL6g5qUiarwBZwErDuW6fI</string>
+    <string name="parse_client_key">PApbMLoNsgWcp2njjn2F3fsKr4i7FGPR90HkAFoq</string>
 </resources>

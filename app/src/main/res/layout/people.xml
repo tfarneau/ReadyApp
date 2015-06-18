@@ -58,6 +58,17 @@
 
             android:layout_marginLeft="20dp"/>
 
+        <com.github.curioustechizen.ago.RelativeTimeTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="Date de modification"
+            android:textColor="@color/color_secondary2"
+            android:id="@+id/updatedTime"
+            android:layout_below="@+id/status"
+            android:layout_alignLeft="@+id/status"
+            android:layout_alignStart="@+id/status" />
+
     </RelativeLayout>
 
 </LinearLayout>

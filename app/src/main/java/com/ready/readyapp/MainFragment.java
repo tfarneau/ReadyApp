@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -24,9 +25,17 @@ import com.facebook.Profile;
 import com.facebook.ProfileTracker;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
+import com.parse.LogInCallback;
+import com.parse.Parse;
+import com.parse.ParseException;
+import com.parse.ParseFacebookUtils;
+import com.parse.ParseUser;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by clement on 15/06/15.
@@ -39,28 +48,6 @@ public class MainFragment extends Fragment{
     private AccessTokenTracker accessTokenTracker;
     private ProfileTracker profileTracker;
     private Profile profile;
-    private FacebookCallback<LoginResult> mCallback = new FacebookCallback<LoginResult>() {
-        @Override
-        public void onSuccess(LoginResult loginResult) {
-            Log.d("Ready", "onSuccess");
-            AccessToken accessToken = loginResult.getAccessToken();
-            checkFriends(accessToken);
-
-        }
-
-
-        @Override
-        public void onCancel() {
-           Activity activity = getActivity();
-           makeToast(activity.getString(R.string.toast_connection_cancel));
-        }
-
-        @Override
-        public void onError(FacebookException e) {
-            Activity activity = getActivity();
-            makeToast(activity.getString(R.string.toast_connection_error));
-        }
-    };
 
     public MainFragment(){
 
@@ -72,7 +59,6 @@ public class MainFragment extends Fragment{
         try {
             dataProfile.put("id", profile.getId());
             dataProfile.put("name", profile.getName());
-            dataProfile.put("picture", profile.getProfilePictureUri(250, 250));
 
             return dataProfile.toString();
 
@@ -84,7 +70,7 @@ public class MainFragment extends Fragment{
 
     }
 
-    private void checkFriends(AccessToken accessToken){
+    private void checkFriends(AccessToken accessToken, final Boolean newUser){
         GraphRequest request = GraphRequest.newMeRequest(
                 accessToken,
                 new GraphRequest.GraphJSONObjectCallback() {
@@ -93,7 +79,7 @@ public class MainFragment extends Fragment{
                             JSONObject object,
                             GraphResponse response) {
 
-                        if (object != null) startListActivity(object.toString());
+                        if (object != null) startListActivity(object.toString(), newUser);
 
                     }
                 });
@@ -107,7 +93,7 @@ public class MainFragment extends Fragment{
         Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
     }
 
-    public void startListActivity(String friends){
+    public void startListActivity(String friends, Boolean newUser){
 
         AccessToken accessToken = AccessToken.getCurrentAccessToken();
 
@@ -116,6 +102,7 @@ public class MainFragment extends Fragment{
             String dataProfile = checkProfile();
             listActivity.putExtra("friends",friends);
             listActivity.putExtra("profile",dataProfile);
+            listActivity.putExtra("newUser",newUser.toString());
             startActivity(listActivity);
         }
 
@@ -124,22 +111,8 @@ public class MainFragment extends Fragment{
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        FacebookSdk.sdkInitialize(getActivity().getApplicationContext());
-        mCallbackManager=CallbackManager.Factory.create();
-        AccessTokenTracker accessTokenTracker = new AccessTokenTracker() {
-            @Override
-            protected void onCurrentAccessTokenChanged(AccessToken oldToken, AccessToken newToken) {
-                Profile profile = Profile.getCurrentProfile();
-                checkFriends(newToken);
-            }
-        };
-        ProfileTracker profileTracker = new ProfileTracker() {
-            @Override
-            protected void onCurrentProfileChanged(Profile oldProfile, Profile newProfile) {
-                //updateProfile(newProfile);
-            }
-        };
-        accessTokenTracker.startTracking();
+
+        if(ParseUser.getCurrentUser() != null) checkFriends(AccessToken.getCurrentAccessToken(), false);
 
     }
 
@@ -149,20 +122,36 @@ public class MainFragment extends Fragment{
         return inflater.inflate(R.layout.fragment_simple_login_button, container, false);
     }
 
-    public void onViewCreated(View view, Bundle savedInstanceState){
-        super.onViewCreated(view, savedInstanceState);
-        LoginButton loginButton = (LoginButton) view.findViewById(R.id.login_button);
-        loginButton.setReadPermissions("user_friends");
-        loginButton.setFragment(this);
-        loginButton.registerCallback(mCallbackManager, mCallback);
-        profile=Profile.getCurrentProfile();
+    public void parseLogin(){
+        List<String> permissions = Arrays.asList("public_profile", "email");
+        ParseFacebookUtils.logInWithReadPermissionsInBackground(this, permissions, new LogInCallback() {
 
-
+            @Override
+            public void done(ParseUser parseUser, ParseException e) {
+                if (parseUser == null) {
+                    Log.d("MyApp", "Uh oh. The user cancelled the Facebook login.");
+                } else if (parseUser.isNew()) {
+                    checkFriends(AccessToken.getCurrentAccessToken(), true);
+                } else {
+                    parseUser.saveInBackground();
+                    checkFriends(AccessToken.getCurrentAccessToken(), false);
+                }
+            }
+        });
     }
 
-    public void onResume(){
-        super.onResume();
-        //Profile profile=Profile.getCurrentProfile();
+    public void onViewCreated(View view, Bundle savedInstanceState){
+        super.onViewCreated(view, savedInstanceState);
+        ImageView facebookButton = (ImageView) view.findViewById(R.id.facebook_button);
+        facebookButton.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                parseLogin();
+            }
+        });
+
     }
 
     public void onStop(){
@@ -174,6 +163,7 @@ public class MainFragment extends Fragment{
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        mCallbackManager.onActivityResult(requestCode, resultCode, data);
+        //mCallbackManager.onActivityResult(requestCode, resultCode, data);
+        ParseFacebookUtils.onActivityResult(requestCode, resultCode, data);
     }
 }

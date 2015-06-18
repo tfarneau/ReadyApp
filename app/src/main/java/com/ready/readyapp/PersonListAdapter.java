@@ -8,6 +8,8 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.github.curioustechizen.ago.RelativeTimeTextView;
+
 import java.util.List;
 
 /**
@@ -48,6 +50,7 @@ public class PersonListAdapter extends BaseAdapter {
     static class ViewHolder {
         TextView nameView;
         TextView statusView;
+        RelativeTimeTextView dateView;
         ImageView onlineView;
         ImageView pictureView;
 
@@ -69,6 +72,8 @@ public class PersonListAdapter extends BaseAdapter {
             holder.onlineView = (ImageView) convertView
                     .findViewById(R.id.online);
 
+            holder.dateView = (RelativeTimeTextView) convertView.findViewById(R.id.updatedTime);
+
             convertView.setTag(holder);
         } else {
             holder = (ViewHolder) convertView.getTag();
@@ -81,6 +86,7 @@ public class PersonListAdapter extends BaseAdapter {
                 .getPicture());
         holder.onlineView.setBackgroundDrawable(listPerson.get(position)
                 .getOnline());
+        holder.dateView.setReferenceTime(listPerson.get(position).getUpdatedAt());
         return convertView;
 
     }

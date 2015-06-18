@@ -9,13 +9,15 @@ public class Person {
     int id;
     String name;
     String status;
+    Long updatedAt;
     Drawable picture;
     Drawable online;
 
-    public Person(int id, String name, String status, Drawable picture, Drawable online) {
+    public Person(int id, String name, String status, Drawable picture, Drawable online, Long updatedAt) {
         super();
         this.id = id;
         this.name = name;
+        this.updatedAt = updatedAt;
         this.status = status;
         this.picture = picture;
         this.online = online;
@@ -59,6 +61,10 @@ public class Person {
 
     public Drawable getOnline() {
         return online;
+    }
+
+    public Long getUpdatedAt() {
+        return updatedAt;
     }
 
     public void setOnline(Drawable online) {
